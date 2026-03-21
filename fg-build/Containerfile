@@ -1,0 +1,19 @@
+
+# IMAGE_NAME=fg-build
+# REGISTRY_USER_NAME=thedevconf
+# docker build --no-cache --progress=plain -f $IMAGE_NAME/Containerfile -t $IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt) . 
+
+ARG BASE_IMAGE="fg-ubi"
+ARG UBI_VERSION="0.1"
+ARG USER_NAME="code"
+
+FROM ${BASE_IMAGE}:${UBI_VERSION}
+
+ENV USER_NAME=${USER_NAME}
+
+# Copy source code
+WORKDIR "/home/${USER_NAME}/src"
+COPY --chown=${USER_NAME} . .
+
+ # Run build
+RUN mvn -f fg-api verify

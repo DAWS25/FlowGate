@@ -1,0 +1,47 @@
+# IMAGE_NAME=fg-api
+# REGISTRY_USER_NAME=thedevconf
+# docker build --no-cache --progress=plain -f $IMAGE_NAME/Containerfile -t $IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt) . 
+# docker tag $IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt) $REGISTRY_USER_NAME/$IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt)
+# docker push docker.io/$REGISTRY_USER_NAME/$IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt)
+# docker run -ti --rm -p 8080:8080 $IMAGE_NAME:$(cat version.x.txt).$(cat version.y.txt).$(cat version.z.txt)
+
+ARG BUILD_IMAGE="fg-build"
+ARG BUILD_VERSION="0.1.0"
+ARG RUNTIME_IMAGE="public.ecr.aws/amazonlinux/amazonlinux"
+ARG RUNTIME_VERSION="2023"
+ARG USER_NAME="code"
+
+FROM ${BUILD_IMAGE}:${BUILD_VERSION} AS build
+
+FROM ${RUNTIME_IMAGE}:${RUNTIME_VERSION}
+
+ARG USER_NAME="code"
+ARG USER_UID=1001
+ARG ARTIFACT_ID="fg-api"
+ARG EXPOSE_PORT="8080"
+ARG USER_HOME="/home/${USER_NAME}"
+ARG JAVA_HOME="${USER_HOME}/jre"
+ARG APP_DIR="${USER_HOME}/src/${ARTIFACT_ID}/target/quarkus-app"
+
+COPY --from=build "${JAVA_HOME}" "${JAVA_HOME}"
+COPY --from=build "${APP_DIR}" "${APP_DIR}"
+
+EXPOSE ${EXPOSE_PORT}
+
+#Consider removing user shell
+RUN echo "$USER_NAME:x:$USER_UID:$USER_UID:$USER_NAME User:${USER_HOME}:/bin/sh" >> /etc/passwd && \
+    echo "$USER_NAME:x:$USER_UID:" >> /etc/group && \
+    mkdir -p $USER_HOME && \
+    chown -R $USER_UID:$USER_UID $USER_HOME
+
+USER ${USER_NAME}
+ENV USER_NAME=${USER_NAME}
+ENV USER_HOME=${USER_HOME}
+ENV ARTIFACT_ID=${ARTIFACT_ID}
+ENV JAVA_HOME="${JAVA_HOME}"
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV APP_DIR="${APP_DIR}"
+
+
+WORKDIR "${APP_DIR}"
+ENTRYPOINT ["java", "-jar", "quarkus-run.jar"]
