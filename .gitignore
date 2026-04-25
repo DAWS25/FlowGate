@@ -25,3 +25,6 @@ replay_pid*
 
 # Local env file (contains secrets like RBAC_GITHUB_TOKEN)
 .envrc
+
+# Local Claude Code config
+.claude/
