@@ -1,2 +1,2 @@
 # FlowGate
-Control access and subscriptions
+Control access and subscriptions.
