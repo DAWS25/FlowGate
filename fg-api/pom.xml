@@ -7,20 +7,46 @@
     <packaging>quarkus</packaging>
 
     <properties>
-        <compiler-plugin.version>3.15.0</compiler-plugin.version>
-        <guava.version>33.6.0-jre</guava.version>
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <skipITs>true</skipITs>
+
+        <!-- https://central.sonatype.com/artifact/io.quarkus.platform/quarkus-bom -->
+        <quarkus.platform.version>3.34.6</quarkus.platform.version>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.32.4</quarkus.platform.version>
-        <skipITs>true</skipITs>
+
+        <!-- https://central.sonatype.com/artifact/com.fasterxml.jackson/jackson-bom
+             Pinned to 2.19.x: github-api references the deprecated
+             PropertyNamingStrategy.SNAKE_CASE field, removed in Jackson 2.20. -->
+        <jackson.version>2.19.4</jackson.version>
+
+        <!-- https://central.sonatype.com/artifact/org.kohsuke/github-api -->
+        <github-api.version>1.327</github-api.version>
+
+        <!-- https://central.sonatype.com/artifact/com.google.guava/guava -->
+        <guava.version>33.6.0-jre</guava.version>
+
+        <!-- https://central.sonatype.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+
+        <!-- https://central.sonatype.com/artifact/org.apache.maven.plugins/maven-surefire-plugin
+             Shared with maven-failsafe-plugin (released in lockstep). -->
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Pin Jackson to 2.19.x: github-api still references the deprecated
+                 PropertyNamingStrategy.SNAKE_CASE field, which was removed in Jackson 2.20. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -42,7 +68,11 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -54,6 +84,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>${github-api.version}</version>
         </dependency>
     </dependencies>
 
