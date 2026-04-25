@@ -1,16 +1,6 @@
-.PHONY: verify clean help
-.DEFAULT_GOAL := verify
+.PHONY: mvnw
+MVN := ./mvnw
 
-MVN     := ./mvnw
-API_DIR := fg-api
+mvnw:
+	$(MVN) 
 
-verify:
-	cd $(API_DIR) && $(MVN) verify
-
-clean:
-	cd $(API_DIR) && $(MVN) clean
-
-help:
-	@echo "Targets:"
-	@echo "  verify (default)  Compile fg-api and run all tests (mvn verify)"
-	@echo "  clean             Remove build artifacts"
